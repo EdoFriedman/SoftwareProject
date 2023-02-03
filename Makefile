@@ -6,3 +6,6 @@ spkmeans.o: spkmeans.c
 
 spkmeans: spkmeans.o spkmeans.h
 	$(CC) -o spkmeans spkmeans.o $(CFLAGS)
+
+matrix.o: matrix.c
+	$(CC) -c matrix.c $(CFLAGS)
