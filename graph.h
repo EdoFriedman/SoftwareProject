@@ -1,3 +1,6 @@
+#ifndef GRAPH_H
+#define GRAPH_H
+
 double sqr_euclidean_dist(double* x1,  double* x2, size_t n_dim);
 /**
  * Computes the squared euclidean distance of two n_dim dimensional
@@ -18,3 +21,5 @@ Matrix get_laplacian_matrix(double **datapoints, size_t n_datapoints, size_t n_d
 /**
  * Computes the Graph Laplacian Matrix.
  */
+
+#endif
