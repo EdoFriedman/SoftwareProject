@@ -1,6 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "matrix.h"
+#include "graph.h"
 
 /**
  * Gets a Python list containing datapoints
@@ -33,6 +34,22 @@ void free_datapoints(double** datapoints, size_t datapoint_count) {
     free(datapoints);
 }
 
+PyObject* matrix_to_pylist(Matrix* matrix) {
+    PyObject* py_matrix;
+    PyObject* tmp_list;
+    size_t i;
+    size_t j;
+    py_matrix = PyList_New(matrix->shape[0]);
+    for(i = 0; i < matrix->shape[0]; i++) {
+        tmp_list = PyList_New(matrix->shape[1]);
+        for(j = 0; j < matrix->shape[1]; j++) {
+            PyList_SetItem(tmp_list, j, PyFloat_FromDouble(matrix->data[i][j]));
+        }
+        PyList_SetItem(py_matrix, i, tmp_list);
+    }
+    return py_matrix;
+}
+
 static PyObject* spk_py(PyObject* self, PyObject* args) {
     PyObject* py_initial_centroids;
     PyObject* py_datapoints;
@@ -47,6 +64,7 @@ static PyObject* spk_py(PyObject* self, PyObject* args) {
     initial_centroids = get_datapoints(py_initial_centroids, &cluster_count, &dim);
     datapoints = get_datapoints(py_datapoints, &datapoint_count, &dim);
 
+    // TODO: call function and process result
 
     free_datapoints(initial_centroids, cluster_count);
     free_datapoints(datapoints, datapoint_count);
@@ -58,27 +76,37 @@ static PyObject* wam_py(PyObject* self, PyObject* args) {
     double** datapoints;
     size_t datapoint_count;
     size_t dim;
+    Matrix wam;
+    PyObject* res;
     if(!PyArg_ParseTuple(args, "O", &py_datapoints)) {
         return NULL;
     }
     datapoints = get_datapoints(py_datapoints, &datapoint_count, &dim);
 
+    wam = get_w_adj_mat(datapoints, datapoint_count, dim);
+    res = matrix_to_pylist(&wam);
+
+    mat_free(wam);
     free_datapoints(datapoints, datapoint_count);
-    return NULL;
+    return res;
 }
 
 static PyObject* ddg_py(PyObject* self, PyObject* args) {
     PyObject* py_datapoints;
-    double** datapoints;
-    size_t datapoint_count;
-    size_t dim;
+    Matrix mat;
+    Matrix ddg;
+    PyObject* res;
     if(!PyArg_ParseTuple(args, "O", &py_datapoints)) {
         return NULL;
     }
-    datapoints = get_datapoints(py_datapoints, &datapoint_count, &dim);
+    mat.data = get_datapoints(py_datapoints, &mat.shape[0], &mat.shape[1]);
 
-    free_datapoints(datapoints, datapoint_count);
-    return NULL;
+    ddg = get_ddg_matrix(mat);
+    res = matrix_to_pylist(&ddg);
+
+    mat_free(mat);
+    mat_free(ddg);
+    return res;
 }
 
 static PyObject* gl_py(PyObject* self, PyObject* args) {
@@ -86,13 +114,19 @@ static PyObject* gl_py(PyObject* self, PyObject* args) {
     double** datapoints;
     size_t datapoint_count;
     size_t dim;
+    Matrix gl;
+    PyObject* res;
     if(!PyArg_ParseTuple(args, "O", &py_datapoints)) {
         return NULL;
     }
     datapoints = get_datapoints(py_datapoints, &datapoint_count, &dim);
 
+    gl = get_laplacian_matrix(datapoints, datapoint_count, dim);
+    res = matrix_to_pylist(&gl);
+
     free_datapoints(datapoints, datapoint_count);
-    return NULL;
+    mat_free(gl);
+    return res;
 }
 
 static PyObject* jacobi_py(PyObject* self, PyObject* args) {
@@ -102,6 +136,8 @@ static PyObject* jacobi_py(PyObject* self, PyObject* args) {
         return NULL;
     }
     matrix.data = get_datapoints(py_matrix, &matrix.shape[0], &matrix.shape[1]);
+
+    // TODO: call function and process result
 
     mat_free(matrix);
     return NULL;
