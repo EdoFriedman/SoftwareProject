@@ -35,7 +35,7 @@ Matrix get_w_adj_matrix(double **datapoints, size_t n_datapoints, size_t n_dim) 
 Matrix get_ddg_matrix(Matrix w_adj_matrix) {
     double w_sum;
     size_t i, j;
-    Matrix res = mat_zeroes(w_adj_matrix.shape[0], w_adj_matrix.shape[1]);
+    Matrix res = mat_zeroes(w_adj_matrix.shape[0], w_adj_matrix.shape[0]);
 
     for (i = 0; i < w_adj_matrix.shape[0]; i++) {
         w_sum = 0;

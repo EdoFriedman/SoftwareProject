@@ -16,11 +16,11 @@ double** get_datapoints(PyObject* py_list, size_t* datapoint_count, size_t* dim)
     *datapoint_count = PyObject_Length(py_list);
     datapoints = malloc(*datapoint_count * sizeof(double*));
     for(i = 0; i < *datapoint_count; i++) {
-        py_datapoint = PyObject_GetItem(py_list, i);
+        py_datapoint = PyObject_GetItem(py_list, PyLong_FromUnsignedLong(i));
         if(!*dim) *dim = PyObject_Length(py_datapoint);
         datapoints[i] = malloc(*dim * sizeof(double));
         for(j = 0; j < *dim; j++) {
-            datapoints[i][j] = PyFloat_AsDouble(PyObject_GetItem(py_datapoint, j));
+            datapoints[i][j] = PyFloat_AsDouble(PyObject_GetItem(py_datapoint, PyLong_FromUnsignedLong(j)));
         }
     }
     return datapoints;
@@ -83,7 +83,7 @@ static PyObject* wam_py(PyObject* self, PyObject* args) {
     }
     datapoints = get_datapoints(py_datapoints, &datapoint_count, &dim);
 
-    wam = get_w_adj_mat(datapoints, datapoint_count, dim);
+    wam = get_w_adj_matrix(datapoints, datapoint_count, dim);
     res = matrix_to_pylist(&wam);
 
     mat_free(wam);
@@ -93,18 +93,23 @@ static PyObject* wam_py(PyObject* self, PyObject* args) {
 
 static PyObject* ddg_py(PyObject* self, PyObject* args) {
     PyObject* py_datapoints;
-    Matrix mat;
+    double** datapoints;
+    size_t datapoint_count;
+    size_t dim;
+    Matrix wam;
     Matrix ddg;
     PyObject* res;
     if(!PyArg_ParseTuple(args, "O", &py_datapoints)) {
         return NULL;
     }
-    mat.data = get_datapoints(py_datapoints, &mat.shape[0], &mat.shape[1]);
+    datapoints = get_datapoints(py_datapoints, &datapoint_count, &dim);
 
-    ddg = get_ddg_matrix(mat);
+    wam = get_w_adj_matrix(datapoints, datapoint_count, dim);
+    ddg = get_ddg_matrix(wam);
     res = matrix_to_pylist(&ddg);
 
-    mat_free(mat);
+    free_datapoints(datapoints, datapoint_count);
+    mat_free(wam);
     mat_free(ddg);
     return res;
 }
