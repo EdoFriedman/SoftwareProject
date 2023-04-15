@@ -1,24 +1,26 @@
 import mykmeanssp
 import sys
 import numpy as np
+
 np.random.seed(0)
+
 
 def spk(datapoints):
     args = sys.argv
     gl = np.array(mykmeanssp.gl(datapoints))
-    # eigenvalues, eigenvectors = mykmeanssp.jacobi(gl)
-    eigenvalues, eigenvectors = np.linalg.eig(gl)
+    eigenvalues, eigenvectors = mykmeanssp.jacobi(gl)
     sort_indices = np.argsort(eigenvalues)
-    eigenvectors = np.array(eigenvectors)[sort_indices,:] # sorts based on eigenvalues
+    eigenvectors = np.array(eigenvectors)[sort_indices, :]  # sorts based on eigenvalues
     eigenvalues.sort()
     if len(args) == 4:
         cluster_count = int(args[1])
     else:
         delta = np.abs(eigenvalues[:-1] - eigenvalues[1:])
-        cluster_count = np.argmax(delta[:len(eigenvalues)//2]) + 1
+        cluster_count = np.argmax(delta[:len(eigenvalues) // 2]) + 1
     initial_centroids, initial_centroids_idx = kmeans_pp(cluster_count, eigenvectors)
     res = mykmeanssp.spk(initial_centroids, datapoints)
     return res, initial_centroids_idx
+
 
 def kmeans_pp(k, datapoints):
     centers = []
@@ -44,22 +46,26 @@ def kmeans_pp(k, datapoints):
 def distance(centers, datapoint):
     return np.min(np.sqrt([np.sum(np.power(center - datapoint, 2)) for center in centers]))
 
+
 def print_spk_result(result):
     final_centroids, initial_centroids_idx = result
     print_matrix([initial_centroids_idx])
     print_matrix(final_centroids)
 
+
 def print_jacobi_result(result):
     eigenvalues, eigenvectors = result
     print_matrix([eigenvalues])
-    print_matrix(np.array(eigenvectors).T)
+    print_matrix(np.array(eigenvectors))
+
 
 def print_matrix(matrix):
     for row in matrix:
         print(','.join('{:0.4f}'.format(i) for i in row))
 
+
 ALGORITHMS = {
-    "spk" : spk,
+    "spk": spk,
     "wam": mykmeanssp.wam,
     "ddg": mykmeanssp.ddg,
     "gl": mykmeanssp.gl,

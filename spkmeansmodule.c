@@ -137,15 +137,26 @@ static PyObject* gl_py(PyObject* self, PyObject* args) {
 static PyObject* jacobi_py(PyObject* self, PyObject* args) {
     PyObject* py_matrix;
     Matrix matrix;
+    eigen_struct jacobi_output;
+    size_t i;
+    PyObject* eigenvectors;
+    PyObject* eigenvalues;
     if(!PyArg_ParseTuple(args, "O", &py_matrix)) {
         return NULL;
     }
     matrix.data = get_datapoints(py_matrix, &matrix.shape[0], &matrix.shape[1]);
 
-    // TODO: call function and process result
+    jacobi_output = jacobi(matrix);
+    eigenvectors = matrix_to_pylist(&jacobi_output.eigenvectors);
+    eigenvalues = PyList_New(jacobi_output.eigenvectors.shape[1]);
+    for (i = 0; i < jacobi_output.eigenvectors.shape[1]; i++) {
+        PyList_SetItem(eigenvalues, i, PyFloat_FromDouble(jacobi_output.eigenvalues[i]));
+    }
 
+    mat_free(jacobi_output.eigenvectors);
+    free(jacobi_output.eigenvalues);
     mat_free(matrix);
-    return NULL;
+    return PyTuple_Pack(2, eigenvalues, eigenvectors);
 }
 
 static PyMethodDef spkmeansMethods[] = {

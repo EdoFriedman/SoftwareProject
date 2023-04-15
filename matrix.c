@@ -57,7 +57,7 @@ Matrix mat_clone(Matrix mat) {
     new_mat = mat_zeroes(mat.shape[0], mat.shape[1]);
 
     for(i = 0; i < mat.shape[0]; i++) {
-        memcpy(new_mat.data[i], mat.data[i], mat.shape[1]);
+        memcpy(new_mat.data[i], mat.data[i], sizeof(double) * mat.shape[1]);
     }
     
     return new_mat;
