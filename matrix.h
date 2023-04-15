@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 typedef struct {
     size_t shape[2];
     double** data;
