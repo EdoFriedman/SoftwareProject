@@ -52,23 +52,36 @@ PyObject* matrix_to_pylist(Matrix* matrix) {
 
 static PyObject* spk_py(PyObject* self, PyObject* args) {
     PyObject* py_initial_centroids;
-    PyObject* py_datapoints;
+    PyObject* py_U;
+    Matrix U;
     double** initial_centroids;
     size_t cluster_count;
-    size_t dim;
-    double** datapoints;
-    size_t datapoint_count;
-    if(!PyArg_ParseTuple(args, "OO", &py_initial_centroids, &py_datapoints)) {
+    kmeans_input kmeansInput;
+    Matrix kmeansOutput;
+    PyObject* kmeansOutputPy;
+    if(!PyArg_ParseTuple(args, "OO", &py_initial_centroids, &py_U)) {
         return NULL;
     }
-    initial_centroids = get_datapoints(py_initial_centroids, &cluster_count, &dim);
-    datapoints = get_datapoints(py_datapoints, &datapoint_count, &dim);
+    initial_centroids = get_datapoints(py_initial_centroids, &cluster_count, &U.shape[1]);
+    U.data = get_datapoints(py_U, &U.shape[0], &U.shape[1]);
 
-    // TODO: call function and process result
+    printf("%ld,%ld", U.shape[0], U.shape[1]);
 
+    kmeansInput.epsilon = 0;
+    kmeansInput.iter_count = 300;
+    kmeansInput.datapoints = U.data;
+    kmeansInput.cluster_count = cluster_count;
+    kmeansInput.dim = U.shape[1];
+    kmeansInput.datapoint_count = U.shape[0];
+
+    kmeansOutput.data = kmeans(kmeansInput, initial_centroids);
+    kmeansOutput.shape[0] = cluster_count;
+    kmeansOutput.shape[1] = cluster_count;
     free_datapoints(initial_centroids, cluster_count);
-    free_datapoints(datapoints, datapoint_count);
-    return NULL;
+    mat_free(U);
+    kmeansOutputPy = matrix_to_pylist(&kmeansOutput);
+    mat_free(kmeansOutput);
+    return kmeansOutputPy;
 }
 
 static PyObject* wam_py(PyObject* self, PyObject* args) {

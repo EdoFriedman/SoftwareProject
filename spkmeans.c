@@ -9,6 +9,90 @@
 
 #define MAX_LINE_LENGTH 4096
 
+double euclideanDistance(double *point1, double *point2, size_t dim) {
+    double sum;
+    size_t i;
+    sum = 0;
+    for (i = 0; i < dim; i++) {
+        sum += (point1[i] - point2[i]) * (point1[i] - point2[i]);
+    }
+    return sqrt(sum);
+}
+
+int distanceArgmin(double **centroids, double *point, size_t centroid_count, size_t dim) {
+    int min_index;
+    double min_distance;
+    size_t i;
+    double distance;
+    min_index = 0;
+    min_distance = euclideanDistance(centroids[0], point, dim);
+    for (i = 1; i < centroid_count; i++) {
+        if (min_distance > (distance = euclideanDistance(centroids[i], point, dim))) {
+            min_index = i;
+            min_distance = distance;
+        }
+    }
+    return min_index;
+}
+
+double **kmeans(kmeans_input input, double **initial_centroids) {
+    double **centroids;
+    double **new_centroids;
+    double **cluster_point_sums;
+    size_t *cluster_point_counts;
+    int closest_centroid;
+    size_t i;
+    size_t j;
+    size_t k;
+    int converged;
+    centroids = malloc(input.cluster_count * sizeof(double *));
+    for (i = 0; i < input.cluster_count; i++) {
+        centroids[i] = malloc(input.dim * sizeof(double));
+        for (j = 0; j < input.dim; j++) {
+            centroids[i][j] = initial_centroids[i][j];
+        }
+    }
+    cluster_point_sums = malloc(input.cluster_count * sizeof(double *));
+    cluster_point_counts = malloc(input.cluster_count * sizeof(size_t));
+    for (i = 0; i < input.cluster_count; i++) {
+        cluster_point_sums[i] = malloc(input.dim * sizeof(double));
+    }
+    for (i = 0; i < input.iter_count; i++) {
+        memset(cluster_point_counts, 0, input.cluster_count * sizeof(size_t));
+        for (j = 0; j < input.cluster_count; j++) {
+            memset(cluster_point_sums[j], 0, input.dim * sizeof(double));
+        }
+        for (j = 0; j < input.datapoint_count; j++) {
+            closest_centroid = distanceArgmin(centroids, input.datapoints[j], input.cluster_count,
+                                              input.dim);
+            for (k = 0; k < input.dim; k++) {
+                cluster_point_sums[closest_centroid][k] += input.datapoints[j][k];
+            }
+            cluster_point_counts[closest_centroid]++;
+        }
+        converged = !0;
+        new_centroids = malloc(input.cluster_count * sizeof(double *));
+        for (j = 0; j < input.cluster_count; j++) {
+            new_centroids[j] = malloc(input.dim * sizeof(double));
+            for (k = 0; k < input.dim; k++) {
+                new_centroids[j][k] = cluster_point_sums[j][k] / cluster_point_counts[j];
+            }
+            converged = converged && euclideanDistance(centroids[j], new_centroids[j], input.dim) < input.epsilon;
+            free(centroids[j]);
+        }
+        free(centroids);
+        centroids = new_centroids;
+        if (converged) break;
+    }
+    for (i = 0; i < input.cluster_count; i++) {
+        free(cluster_point_sums[i]);
+    }
+    free(cluster_point_counts);
+    free(cluster_point_sums);
+    return centroids;
+}
+
+
 void print_matrix(Matrix A) {
     size_t i, j;
     char *delim;

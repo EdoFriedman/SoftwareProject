@@ -9,6 +9,20 @@ typedef struct {
 
 } eigen_struct;
 
+typedef struct {
+    size_t cluster_count;
+    size_t iter_count;
+    size_t dim;
+    size_t datapoint_count;
+    double **datapoints;
+    double epsilon;
+} kmeans_input;
+
+double **kmeans(kmeans_input input, double **initial_centroids);
+/**
+ * computes kmeans
+ */
+
 eigen_struct jacobi(Matrix A);
 /**
  * Computes the Eigenvalues and Eigenvectors of a matrix A.

@@ -6,19 +6,30 @@ np.random.seed(0)
 
 
 def spk(datapoints):
+    np.random.seed(0)
     args = sys.argv
     gl = np.array(mykmeanssp.gl(datapoints))
     eigenvalues, eigenvectors = mykmeanssp.jacobi(gl)
+    eigenvalues = np.array(eigenvalues)
+    eigenvectors = np.array(eigenvectors)
     sort_indices = np.argsort(eigenvalues)
-    eigenvectors = np.array(eigenvectors)[sort_indices, :]  # sorts based on eigenvalues
+    print(eigenvectors[:, 0])
+    print(eigenvectors[0, :])
+    eigenvectors = np.array(eigenvectors)[:, sort_indices]  # sorts based on eigenvalues
     eigenvalues.sort()
     if len(args) == 4:
         cluster_count = int(args[1])
     else:
         delta = np.abs(eigenvalues[:-1] - eigenvalues[1:])
         cluster_count = np.argmax(delta[:len(eigenvalues) // 2]) + 1
-    initial_centroids, initial_centroids_idx = kmeans_pp(cluster_count, eigenvectors)
-    res = mykmeanssp.spk(initial_centroids, datapoints)
+
+    print(eigenvectors[:, 0])
+    print(eigenvectors[0, :])
+    # print(eigenvectors, eigenvalues)
+    U = eigenvectors[:, :cluster_count]
+    initial_centroids, initial_centroids_idx = kmeans_pp(cluster_count, U)
+
+    res = mykmeanssp.spk(initial_centroids, U)
     return res, initial_centroids_idx
 
 
@@ -49,7 +60,7 @@ def distance(centers, datapoint):
 
 def print_spk_result(result):
     final_centroids, initial_centroids_idx = result
-    print_matrix([initial_centroids_idx])
+    print(str(initial_centroids_idx)[1:-1].replace(" ", ""))
     print_matrix(final_centroids)
 
 
