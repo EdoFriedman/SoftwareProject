@@ -1,3 +1,8 @@
+#ifndef MATRIX_H
+#define MATRIX_H
+
+#include <stdlib.h>
+
 typedef struct {
     size_t shape[2];
     double** data;
@@ -64,3 +69,5 @@ Matrix mat_sum_rows(Matrix mat);
  * Returns the transpose of the given matrix
  */
 Matrix mat_transpose(Matrix mat);
+
+#endif

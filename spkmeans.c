@@ -1,10 +1,11 @@
-#include "spkmeans.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <assert.h>
 
 #include "matrix.h"
+#include "spkmeans.h"
 
 double sqr_euclidean_dist(double *x1, double *x2, size_t n_dim) {
     size_t i;
@@ -16,7 +17,7 @@ double sqr_euclidean_dist(double *x1, double *x2, size_t n_dim) {
     return res;
 }
 
-Matrix wam(double **datapoints, size_t n_datapoints, size_t n_dim) {
+Matrix get_w_adj_matrix(double **datapoints, size_t n_datapoints, size_t n_dim) {
     Matrix w_adj_mat = mat_zeroes(n_datapoints, n_datapoints);
 
     size_t i, j;
@@ -32,15 +33,15 @@ Matrix wam(double **datapoints, size_t n_datapoints, size_t n_dim) {
     return w_adj_mat;
 }
 
-Matrix ddg(Matrix wam) {
+Matrix get_ddg_matrix(Matrix w_adj_matrix) {
     double w_sum;
     size_t i, j;
-    Matrix res = mat_zeroes(wam.shape[0], wam.shape[1]);
+    Matrix res = mat_zeroes(w_adj_matrix.shape[0], w_adj_matrix.shape[0]);
 
-    for (i = 0; i < wam.shape[0]; i++) {
+    for (i = 0; i < w_adj_matrix.shape[0]; i++) {
         w_sum = 0;
-        for (j = 0; j < wam.shape[1]; j++) {
-            w_sum += wam.data[i][j];
+        for (j = 0; j < w_adj_matrix.shape[1]; j++) {
+            w_sum += w_adj_matrix.data[i][j];
         }
 
         res.data[i][i] = w_sum;
@@ -49,13 +50,10 @@ Matrix ddg(Matrix wam) {
     return res;
 }
 
-Matrix gl(double **datapoints, size_t n_datapoints, size_t n_dim) {
-    Matrix w_adj_matrix = wam(datapoints, n_datapoints, n_dim);
-    Matrix ddg_matrix = ddg(w_adj_matrix);
+Matrix get_laplacian_matrix(double **datapoints, size_t n_datapoints, size_t n_dim) {
+    Matrix w_adj_matrix = get_w_adj_matrix(datapoints, n_datapoints, n_dim);
+    Matrix ddg_matrix = get_ddg_matrix(w_adj_matrix);
     Matrix laplacian_matrix = mat_add(ddg_matrix, mat_mul_s(w_adj_matrix, -1));
-
-    mat_free(w_adj_matrix);
-    mat_free(ddg_matrix);
 
     return laplacian_matrix;
 }
@@ -176,6 +174,10 @@ eigen_struct jacobi(Matrix A){
     return res;
 }
 
-int main(){
+
+int main(int argc, char** argv) {
+    if(argc > 0) {
+        printf("%s\n", argv[0]);
+    }
     return 0;
-};
+}
