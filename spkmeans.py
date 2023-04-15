@@ -5,20 +5,22 @@ np.random.seed(0)
 
 def spk(datapoints):
     args = sys.argv
-    if len(args) == 3:
-        cluster_count = args[0]
+    gl = np.array(mykmeanssp.gl(datapoints))
+    # eigenvalues, eigenvectors = mykmeanssp.jacobi(gl)
+    eigenvalues, eigenvectors = np.linalg.eig(gl)
+    sort_indices = np.argsort(eigenvalues)
+    eigenvectors = np.array(eigenvectors)[sort_indices,:] # sorts based on eigenvalues
+    eigenvalues.sort()
+    if len(args) == 4:
+        cluster_count = int(args[1])
     else:
-        gl = np.array(mykmeanssp.gl(datapoints))
-        eigenvalues = mykmeanssp.jacobi(gl)[0]
-        eigenvalues.sort()
         delta = np.abs(eigenvalues[:-1] - eigenvalues[1:])
-        cluster_count = np.argmax(delta)
-    initial_centroids, initial_centroids_idx = kmeans_pp(cluster_count, datapoints)
+        cluster_count = np.argmax(delta[:len(eigenvalues)//2]) + 1
+    initial_centroids, initial_centroids_idx = kmeans_pp(cluster_count, eigenvectors)
     res = mykmeanssp.spk(initial_centroids, datapoints)
     return res, initial_centroids_idx
 
 def kmeans_pp(k, datapoints):
-    np.random.seed(0)
     centers = []
     centers_idx = []
     idx = np.random.randint(low=0, high=datapoints.shape[0], size=(1,))[0]
