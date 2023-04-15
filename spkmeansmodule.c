@@ -1,7 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "matrix.h"
-#include "graph.h"
+#include "spkmeans.h"
 
 /**
  * Gets a Python list containing datapoints
