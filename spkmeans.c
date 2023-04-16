@@ -152,7 +152,12 @@ Matrix get_ddg_matrix(Matrix w_adj_matrix) {
 Matrix get_laplacian_matrix(double **datapoints, size_t n_datapoints, size_t n_dim) {
     Matrix w_adj_matrix = get_w_adj_matrix(datapoints, n_datapoints, n_dim);
     Matrix ddg_matrix = get_ddg_matrix(w_adj_matrix);
-    Matrix laplacian_matrix = mat_add(ddg_matrix, mat_mul_s(w_adj_matrix, -1));
+    Matrix temp = mat_mul_s(w_adj_matrix, -1);
+    Matrix laplacian_matrix = mat_add(ddg_matrix, temp);
+
+    mat_free(w_adj_matrix);
+    mat_free(ddg_matrix);
+    mat_free(temp);
 
     return laplacian_matrix;
 }
