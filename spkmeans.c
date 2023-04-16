@@ -241,6 +241,7 @@ eigen_struct jacobi(Matrix A) {
         mat_free(temp1);
         A_tag = mat_mul_m(temp2, P);
         mat_free(temp2);
+        mat_free(P);
 
 
         if (fabs(off_diagonal_sum(A) - off_diagonal_sum(A_tag)) < 0.00001) {
