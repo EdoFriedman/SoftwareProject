@@ -65,8 +65,6 @@ static PyObject* spk_py(PyObject* self, PyObject* args) {
     initial_centroids = get_datapoints(py_initial_centroids, &cluster_count, &U.shape[1]);
     U.data = get_datapoints(py_U, &U.shape[0], &U.shape[1]);
 
-    printf("%ld,%ld", U.shape[0], U.shape[1]);
-
     kmeansInput.epsilon = 0;
     kmeansInput.iter_count = 300;
     kmeansInput.datapoints = U.data;

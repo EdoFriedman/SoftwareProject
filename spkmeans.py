@@ -13,8 +13,6 @@ def spk(datapoints):
     eigenvalues = np.array(eigenvalues)
     eigenvectors = np.array(eigenvectors)
     sort_indices = np.argsort(eigenvalues)
-    print(eigenvectors[:, 0])
-    print(eigenvectors[0, :])
     eigenvectors = np.array(eigenvectors)[:, sort_indices]  # sorts based on eigenvalues
     eigenvalues.sort()
     if len(args) == 4:
@@ -23,9 +21,6 @@ def spk(datapoints):
         delta = np.abs(eigenvalues[:-1] - eigenvalues[1:])
         cluster_count = np.argmax(delta[:len(eigenvalues) // 2]) + 1
 
-    print(eigenvectors[:, 0])
-    print(eigenvectors[0, :])
-    # print(eigenvectors, eigenvalues)
     U = eigenvectors[:, :cluster_count]
     initial_centroids, initial_centroids_idx = kmeans_pp(cluster_count, U)
 
