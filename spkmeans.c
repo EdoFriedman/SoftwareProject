@@ -341,7 +341,6 @@ int main(int argc, char **argv) {
         wam_output = get_w_adj_matrix(input, n_datapoints, n_dims);
         print_matrix(wam_output);
         mat_free(wam_output);
-        return 0;
     }
     if (strcmp(goal, "ddg") == 0) {
         wam_output = get_w_adj_matrix(input, n_datapoints, n_dims);
@@ -349,13 +348,11 @@ int main(int argc, char **argv) {
         print_matrix(ddg_output);
         mat_free(wam_output);
         mat_free(ddg_output);
-        return 0;
     }
     if (strcmp(goal, "gl") == 0) {
         gl_output = get_laplacian_matrix(input, n_datapoints, n_dims);
         print_matrix(gl_output);
         mat_free(gl_output);
-        return 0;
     }
     if (strcmp(goal, "jacobi") == 0) {
         jacobi_input.data = input;
@@ -373,9 +370,12 @@ int main(int argc, char **argv) {
         print_matrix(jacobi_output.eigenvectors);
         mat_free(jacobi_output.eigenvectors);
         free(jacobi_output.eigenvalues);
-        return 0;
-
     }
+
+    for(i = 0; i < n_datapoints; i++) {
+        free(input[i]);
+    }
+    free(input);
 
     return 0;
 }
