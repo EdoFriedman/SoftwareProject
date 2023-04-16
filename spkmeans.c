@@ -184,14 +184,14 @@ int *get_pivot(Matrix A) {
 
 }
 
-double off_diagonal_sum(Matrix A) {
+double off_diagonal_sqr_sum(Matrix A) {
     double sum = 0;
     size_t i, j;
 
     for (i = 0; i < A.shape[0]; i++) {
         for (j = 0; j < A.shape[1]; j++) {
             if (i != j) {
-                sum += A.data[i][j];
+                sum += A.data[i][j] * A.data[i][j];
             }
         }
 
@@ -212,7 +212,6 @@ Matrix get_rotation_matrix(double c, double s, int i, int j, size_t n) {
 }
 
 eigen_struct jacobi(Matrix A) {
-
     int *pivot_idx;
     size_t i, j;
     size_t ii;
@@ -244,7 +243,7 @@ eigen_struct jacobi(Matrix A) {
         mat_free(P);
 
 
-        if (fabs(off_diagonal_sum(A) - off_diagonal_sum(A_tag)) < 0.00001) {
+        if (fabs(off_diagonal_sqr_sum(A) - off_diagonal_sqr_sum(A_tag)) < 0.00001) {
             mat_free(A);
             A = A_tag;
             mat_free(V);
@@ -378,7 +377,7 @@ int main(int argc, char **argv) {
         free(jacobi_output.eigenvalues);
     }
 
-    for(i = 0; i < n_datapoints; i++) {
+    for (i = 0; i < n_datapoints; i++) {
         free(input[i]);
     }
     free(input);

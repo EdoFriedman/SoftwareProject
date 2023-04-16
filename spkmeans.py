@@ -6,15 +6,19 @@ np.random.seed(0)
 
 
 def spk(datapoints):
-    np.random.seed(0)
     args = sys.argv
     gl = np.array(mykmeanssp.gl(datapoints))
     eigenvalues, eigenvectors = mykmeanssp.jacobi(gl)
     eigenvalues = np.array(eigenvalues)
     eigenvectors = np.array(eigenvectors)
+
+    neg = (np.copysign(1, eigenvalues) == -1)
+    eigenvalues[neg] *= -1
+
     sort_indices = np.argsort(eigenvalues)
     eigenvectors = np.array(eigenvectors)[:, sort_indices]  # sorts based on eigenvalues
     eigenvalues.sort()
+
     if len(args) == 4:
         cluster_count = int(args[1])
     else:
@@ -97,4 +101,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        print("An Error Has Occurred")
+        exit(1)

@@ -18,6 +18,11 @@ typedef struct {
     double epsilon;
 } kmeans_input;
 
+void print_matrix(Matrix A);
+/**
+ * prints a matrix in the desired format for this project.
+ */
+
 double **kmeans(kmeans_input input, double **initial_centroids);
 /**
  * computes kmeans
